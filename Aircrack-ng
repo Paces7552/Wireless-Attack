@@ -1,0 +1,36 @@
+## Aircrack-ng
+- Network sofrware used for security testing of wireless lan's
+- It works with any wireless network interface controller whose driver supports raw monitoring mode 
+- The aircrack-ng software suite includes:
+
+  Name 	           Description
+aircrack-ng 	  Cracks WEP keys using the Fluhrer, Mantin and Shamir (FMS) attack, PTW, Korek, dictionary attacks, and WPA/WPA2-PSK using dictionary attacks.
+airdecap-ng   	Decrypts WEP or WPA encrypted capture files with known key.
+airmon-ng 	    Places different cards in monitor mode.
+aireplay-ng 	  Packet injector (Linux, and Windows with CommView drivers).
+airodump-ng 	  Packet sniffer: Places air traffic into pcap or IVS files and shows information about networks.
+airtun-ng 	    Virtual tunnel interface creator.
+packetforge-ng 	Creates encrypted packets for injection.
+ivstools 	      Tools to merge and convert.
+airbase-ng 	    Incorporates techniques for attacking client, as opposed to Access Points.
+airdecloak-ng 	Removes WEP cloaking from pcap files.
+airolib-ng 	    Stores and manages ESSID and password lists and compute Pairwise Master Keys.
+airserv-ng 	    Allows to access the wireless card from other computers.
+buddy-ng 	      The helper server for easside-ng, run on a remote computer.
+easside-ng 	    A tool for communicating to an access point, without the WEP key.
+tkiptun-ng 	    WPA/TKIP attack tool.
+wesside-ng 	    Automatic tool for WEP key recovery.
+
+## Using Aircrack-ng to Capture 4-way Handshake
+- The 4-way handshake is the process of exchanging 4 messages between an access point (authenticator) and the client device (supplicant) 
+  to generate some encryption keys which can be used to encrypt actual data sent over Wireless medium. 
+## Keys
+MSK (Master Session Key)
+PMK (Pairwise Master Key)
+GMK (Group Master Key)
+PTK (Pairwise Transient Key)
+GTK (Group Temporal Key)
+ANonce
+SNonce
+MI
+
