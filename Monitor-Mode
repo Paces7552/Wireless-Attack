@@ -1,0 +1,47 @@
+## Enabling monitor mode
+- iwconfig to see wireless interfaces avaible
+
+user@system:~$ iwconfig
+lo        no wireless extensions.
+
+enp7s0    no wireless extensions.
+
+wlp0s20f3  IEEE 802.11  ESSID:"XXXXXXXXXXXX"  
+          Mode:Managed  Frequency:2.427 GHz  Access Point: XX:XX:XX:XX:XX:XX 
+          Bit Rate=72.2 Mb/s   Tx-Power=22 dBm   
+          Retry short limit:7   RTS thr:off   Fragment thr:off
+          Power Management:on
+          Link Quality=43/70  Signal level=-67 dBm  
+          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
+          Tx excessive retries:0  Invalid misc:283   Missed beacon:0
+
+- The wlp0s20f3 is my wireless interface
+- We can see the Mode:Managed
+
+## We can use Airmon-ng start [wireless interface] to enable monitor mode
+- run it as root
+- iwconfig to see the results
+
+user@system:~$ iwconfig
+lo        no wireless extensions.
+
+enp7s0    no wireless extensions.
+
+wlp0s20f3mon  IEEE 802.11  Mode:Monitor  Frequency:2.457 GHz  Tx-Power=-2147483648 dBm   
+          Retry short limit:7   RTS thr:off   Fragment thr:off
+          Power Management:on
+- now we are on monitor mode
+
+----------------------------------------------
+
+## To disable monitor mode
+- Command Airmon-ng stop [wireless interface]
+- in this case
+user@system:~$ sudo airmon-ng stop wlp0s20f3mon
+
+PHY     Interface       Driver          Chipset
+
+phy0    wlp0s20f3mon    iwlwifi         Intel Corporation Cannon Lake PCH CNVi WiFi (rev 10)
+                (mac80211 station mode vif enabled on [phy0]wlp0s20f3)
+                (mac80211 monitor mode vif disabled for [phy0]wlp0s20f3mon)
+
